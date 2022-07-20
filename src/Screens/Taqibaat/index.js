@@ -1,113 +1,85 @@
-/* eslint-disable react-native/no-inline-styles */
-import React, {useEffect} from 'react';
-import {Text, View} from 'react-native';
-import LoadingActionContainer from '../../Components/LoadingActionContainer';
-import {Container, HeaderButton} from '../../Components';
-import NavigationStyles from '../../Styles/NavigationStyles';
-import useAppTheme from '../../Themes/Context';
-import {IconX, ICON_TYPE} from '../../Icons';
-import NavigationService from '../../Navigation';
-import { ButtonX } from '../../Components';
-import { StyleSheet } from 'react-native';
+import React from 'react';
+import {
+  FlatList,
+  StyleSheet,
+  Text,
+  Touchable,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import {colors} from '../../styles/colors';
 
 const TaqibaatScreen = ({navigation}) => {
-  const {theme} = useAppTheme();
-
-  useEffect(() => {
-    const _toggleDrawer = () => {
-      NavigationService.toggleDrawer();
-    };
-
-    console.log('use effect taqibaat');
-
-    navigation.setOptions({
-      headerRight: () => {
-        return (
-          <View style={{marginLeft: 10}}>
-            <HeaderButton
-              icon="menufold"
-              color={theme.colors.headerTitle}
-              iconOrigin={ICON_TYPE.ANT_ICON}
-              onPress={_toggleDrawer}
-            />
-          </View>
-        );
-      },
-    });
-  }, [navigation, theme.colors.headerTitle]);
-
+  const {container, innerContainer, titleContainer, titleText} = styles;
+  const data = [
+    {title: 'DUA FAJR', id: 1, header: 'Dua Fajr', data: 'Fajr'},
+    {title: 'DUA DHUR', id: 2, header: 'Dua Dhur', data: 'Dhur'},
+    {title: 'DUA ASR', id: 3, header: 'Dua Asr', data: 'Asr'},
+    {title: 'DUA MAGHRIB', id: 4, header: 'Dua Maghrib', data: 'Maghrib'},
+    {title: 'DUA ISHA', id: 5, header: 'Dua Isha', data: 'Isha'},
+  ];
+  const renderItem = ({item}) => {
+    return (
+      <TouchableOpacity
+        onPress={() =>
+          navigation.navigate('DuaScreen', {
+            title: item.header,
+            data: item.data,
+          })
+        }
+        style={titleContainer}
+        activeOpacity={0.7}>
+        <Text style={titleText}>{item.title}</Text>
+      </TouchableOpacity>
+    );
+  };
   return (
-    <LoadingActionContainer fixed>
-      <Container
-        style={{
-          padding: 30, marginTop: 30
-        }}>
-          <View>
-            <ButtonX
-              dark={true}
-              mode="outlined"
-              label={"DUA FAJR"}
-              style={styles.btn}
-              labelStyle={styles.btnText}
-              // onPress={_changeLocale}
-            />
-            <ButtonX
-              dark={true}
-              mode="outlined"
-              label={"DUA DHUR"}
-              style={styles.btn}
-              labelStyle={styles.btnText}
-              // onPress={_changeLocale}
-            />
-            <ButtonX
-              dark={true}
-              mode="outlined"
-              label={"DUA ASR"}
-              style={styles.btn}
-              labelStyle={styles.btnText}
-              // onPress={_changeLocale}
-            />
-            <ButtonX
-              dark={true}
-              mode="outlined"
-              label={"DUA MAGHRIB"}
-              style={styles.btn}
-              labelStyle={styles.btnText}
-              // onPress={_changeLocale}
-            />
-            <ButtonX
-              dark={true}
-              mode="outlined"
-              label={"DUA ISHA"}
-              style={styles.btn}
-              labelStyle={styles.btnText}
-              // onPress={_changeLocale}
-            />
-          </View>
-      </Container>
-    </LoadingActionContainer>
+    <View style={container}>
+      <View style={innerContainer}>
+        <FlatList
+          data={data}
+          contentContainerStyle={{
+            paddingHorizontal: 20,
+            paddingBottom: 30,
+            paddingTop: 30,
+          }}
+          renderItem={renderItem}
+        />
+      </View>
+    </View>
   );
 };
 
-TaqibaatScreen.navigationOptions = ({navigation, screenProps}) => {
-  const {theme} = screenProps;
-  return {
-    headerStyle: [
-      NavigationStyles.header_statusBar,
-      {backgroundColor: theme.colors.header},
-    ],
-    headerTitle: 'Profile',
-    headerTintColor: theme.colors.headerTitle,
-    headerTitleStyle: [
-      NavigationStyles.headerTitle,
-      {color: theme.colors.headerTitle},
-    ],
-  };
-};
-
 const styles = StyleSheet.create({
-  btn: {borderRadius: 50, height: 60, backgroundColor: 'white', },
-  btnText: {color: "#ffb687", fontSize: 22}
+  container: {
+    flex: 1,
+    backgroundColor: colors.orangeMedium,
+  },
+  innerContainer: {
+    flex: 1,
+
+    backgroundColor: colors.orangeExtraLight,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    marginTop: 30,
+    elevation: 5,
+  },
+  titleContainer: {
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#fff',
+    borderRadius: 30,
+    padding: 15,
+    backgroundColor: '#fff',
+    marginBottom: 25,
+    elevation: 4,
+  },
+  titleText: {
+    fontSize: 17,
+    fontWeight: 'bold',
+    color: colors.orangeMedium,
+  },
 });
 
 export default TaqibaatScreen;

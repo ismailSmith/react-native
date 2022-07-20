@@ -1,19 +1,20 @@
 import React, {useState, useEffect} from 'react';
-import {Image, StyleSheet, View} from 'react-native';
+import {Image, StyleSheet, Text, View} from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import {colors} from '../../styles/colors';
 import CompassHeading from 'react-native-compass-heading';
-import useAppTheme from '../../Themes/Context';
-import {IconX, ICON_TYPE} from '../../Icons';
-import NavigationService from '../../Navigation';
-import {Container, HeaderButton} from '../../Components';
 
-const QiblaScreen = ({routes, navigation}) => {
+const QiblaScreen = () => {
   const [compassHeading, setCompassHeading] = useState(0);
-  const {theme} = useAppTheme();
-
+  const {container, innerContainer} = styles;
   useEffect(() => {
     const degree_update_rate = 3;
 
+    // accuracy on android will be hardcoded to 1
+    // since the value is not available.
+    // For iOS, it is in degrees
     CompassHeading.start(degree_update_rate, ({heading, accuracy}) => {
+      console.log(degree_update_rate);
       setCompassHeading(heading);
     });
 
@@ -21,44 +22,41 @@ const QiblaScreen = ({routes, navigation}) => {
       CompassHeading.stop();
     };
   }, []);
-
-  useEffect(() => {
-    const _toggleDrawer = () => {
-      NavigationService.toggleDrawer();
-    };
-
-    console.log('use effect qibla');
-
-    navigation.setOptions({
-      headerRight: () => {
-        return (
-          <View style={{marginLeft: 10}}>
-            <HeaderButton
-              icon="menufold"
-              color={theme.colors.headerTitle}
-              iconOrigin={ICON_TYPE.ANT_ICON}
-              onPress={_toggleDrawer}
-            />
-          </View>
-        );
-      },
-    });
-  }, [navigation, theme.colors.headerTitle]);
-
+  console.log(compassHeading);
 
   return (
-    <Image
-      style={[
-        styles.image,
-        {transform: [{rotate: `${360 - compassHeading}deg`}]},
-      ]}
-      resizeMode="contain"
-      source={require('../../Assets/images/compass.png')}
-    />
+    <View style={container}>
+      <View style={innerContainer}>
+
+        <Image
+          style={[
+            styles.image,
+            {transform: [{rotate: `${360 - compassHeading}deg`}]},
+          ]}
+          resizeMode="contain"
+          source={{
+            uri: 'https://is1-ssl.mzstatic.com/image/thumb/Purple118/v4/c9/eb/64/c9eb64f9-f3c9-c7a1-6e41-6e7c532ed01d/source/512x512bb.jpg',
+          }}
+        />
+      </View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.orangeMedium,
+  },
+  innerContainer: {
+    flex: 1,
+
+    backgroundColor: colors.orangeExtraLight,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    marginTop: 30,
+    elevation: 5,
+  },
   image: {
     width: '90%',
     flex: 1,

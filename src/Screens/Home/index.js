@@ -1,79 +1,184 @@
-/* eslint-disable react-native/no-inline-styles */
-import React, {useEffect} from 'react';
-import {View, Text} from 'react-native';
-import LoadingActionContainer from '../../Components/LoadingActionContainer';
-import {Container, HeaderButton} from '../../Components';
-import useAppTheme from '../../Themes/Context';
-import {IconX, ICON_TYPE} from '../../Icons';
-import {Image} from 'react-native';
-import metrics from '../../Themes/Metrics';
-import {useStoreState} from 'easy-peasy';
-import Fonts from '../../Themes/Fonts';
-import NavigationService from '../../Navigation';
-import { StyleSheet } from 'react-native';
-import { Table, Row, Rows } from 'react-native-table-component';
+import React, {useEffect, useState} from 'react';
+import {
+  FlatList,
+  StyleSheet,
+  Text,
+  Touchable,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import {colors} from '../../styles/colors';
+import {getByDay, getByMonth} from 'prayertiming';
+import Geolocation from '@react-native-community/geolocation';
+import Header from '../../components/Header';
+import Fonts from '../../styles/Fonts';
 
-const MainScreen = ({routes, navigation}) => {
-  const {theme} = useAppTheme();
-
-  useEffect(() => {
-    const _toggleDrawer = () => {
-      NavigationService.toggleDrawer();
-    };
-
-    console.log('use effect home');
-
-    navigation.setOptions({
-      headerRight: () => {
-        return (
-          <View style={{marginRight: 10}}>
-            <HeaderButton
-              icon="menufold"
-              color={theme.colors.headerTitle}
-              iconOrigin={ICON_TYPE.ANT_ICON}
-              onPress={_toggleDrawer}
-            />
-          </View>
-        );
-      },
-    });
-  }, [navigation, theme.colors.headerTitle]);
-
-  const tableHead = ['Oslo', '12:00'];
-  const tableData = [
-    ['Imsak', '12:00'],
-    ['Fire', '12:00'],
-    ['Sunrise', '12:00'],
-    ['Dhur', '12:00'],
-    ['Asr', '12:00'],
-    ['Sunset', '12:00'],
-    ['Maghrib', '12:00'],
-    ['Isha', '12:00'],
-    ['Midnight', '12:00'],
+const HomeScreen = ({navigation}) => {
+  const {
+    container,
+    innerContainer,
+    titleContainer,
+    titleContainer1,
+    titleText,
+  } = styles;
+  const {RalewaySemiBold, RalewayMedium, RalewayBold} = Fonts;
+  const data = [
+    {title: 'Oslo', time: 'July 15', id: 1},
+    {title: 'Imsak', time: '01:23', id: 2},
+    {title: 'Fire', time: '01:53', id: 3},
+    {title: 'Sunrise', time: '04:24', id: 5},
+    {title: 'Dhur', time: '13:23', id: 4},
+    {title: 'Asr', time: '17:57', id: 16},
+    {title: 'Sunset', time: '22:23', id: 131},
+    {title: 'Maghrib', time: '22:53', id: 121},
+    {title: 'Isha', time: '23:30', id: 13},
+    {title: 'Midnight', time: '00-07', id: 11},
   ];
 
+  const [prayerData, setPrayerData] = useState('');
+
+  useEffect(() => {
+    try {
+      Geolocation.getCurrentPosition(
+        location => {
+          console.log('In here', location);
+
+          const lat = location.coords.latitude;
+          const lng = location.coords.longitude;
+          var a = getByMonth({
+            month: 7,
+            year: 2022,
+            long: lng,
+            lat: lat,
+            method: 'Karachi',
+            timeFormat: '12h',
+          });
+          setPrayerData(a);
+        },
+        error => {
+          console.log('in error of location permission', error);
+          // ERROR CODES:
+          // 1: No Permission
+          // 2: Location is disables
+          // 3: Time out
+
+          if (error.code === 1) {
+            alert('Please allow permission');
+            // setLocationModal(!locationModal);
+          } else if (error.code === 2) {
+            alert('please turn on location');
+            // setLocationModal1(!locationModal1);
+
+            // Alert.aler('Please enable device loaction!');
+          } else {
+            alert('something when wrong');
+          }
+        },
+      );
+    } catch {
+      console.log('In catch');
+    }
+  }, []);
+  console.log(prayerData);
+
+  const renderItem = ({item, index}) => {
+    return (
+      <View>
+        <TouchableOpacity
+          style={
+            index === 0
+              ? [titleContainer1, {paddingTop: 12, marginBottom: 6}]
+              : titleContainer
+          }
+          activeOpacity={0.7}>
+          <Text
+            style={[
+              titleText,
+              index === 0 ? null : {color: colors.darkBlue},
+              RalewayBold,
+            ]}>
+            {item.title}
+          </Text>
+          <Text
+            style={[
+              titleText,
+              index === 0 ? null : {color: colors.darkBlue},
+              RalewayMedium,
+            ]}>
+            {item.time}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
   return (
-    <LoadingActionContainer fixed>
-      <Container
-        style={{
-          padding: 30, marginTop: 30
-        }}>
-          <View style={{ borderRadius: 10}}>
-            <Table style={styles.table}>
-              <Row data={tableHead} style={styles.head} textStyle={styles.text}/>
-              <Rows data={tableData} style={styles.body} textStyle={styles.text}/>
-            </Table>
-          </View>
-      </Container>
-    </LoadingActionContainer>
+    <View style={container}>
+      {/* <Header title={'Home'} navigation={navigation} /> */}
+      <View style={innerContainer}>
+        <FlatList
+          data={data}
+          contentContainerStyle={{
+            marginHorizontal: 39,
+            marginTop: 30,
+            borderColor: colors.orangeMedium,
+            borderWidth: 1,
+            borderRadius: 15,
+            backgroundColor: '#fff',
+            elevation: 4,
+            margin: 5,
+          }}
+          renderItem={renderItem}
+        />
+      </View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  head: { height: 40, backgroundColor: '#faeac6', borderRadius: 10},
-  body: { height: 50},
-  text: { margin: 6 , textAlign: 'center', fontSize: 20, fontWeight: 'bold'},
-  table: {backgroundColor:'#ffffff', borderRadius: 10, padding: 10, margin: 0.5, marginBottom: 0.8,}
+  container: {
+    flex: 1,
+    backgroundColor: colors.orangeMedium,
+  },
+  innerContainer: {
+    flex: 1,
+
+    backgroundColor: colors.orangeExtraLight,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    marginTop: 30,
+    elevation: 5,
+  },
+  titleContainer: {
+    // alignItems: 'center',
+    // borderWidth: 2,
+    // borderColor: colors.primaryColor,
+    // borderRadius: 30,
+    // padding: 15,
+    // backgroundColor: '#ffe8c6',
+    // marginBottom: 25,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  titleContainer1: {
+    // alignItems: 'center',
+    // borderWidth: 2,
+    // borderColor: colors.primaryColor,
+    // borderRadius: 30,
+    // padding: 15,
+    backgroundColor: colors.orangeLight,
+    // marginBottom: 25,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    borderTopLeftRadius: 15,
+    borderTopRightRadius: 15,
+  },
+  titleText: {
+    fontSize: 17,
+    paddingBottom: 12,
+    paddingHorizontal: 20,
+    color: colors.orangeDark,
+  },
 });
 
-export default MainScreen;
+export default HomeScreen;
