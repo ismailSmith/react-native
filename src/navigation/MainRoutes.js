@@ -47,7 +47,7 @@ const DrawerContent = props => {
         <DrawerItem
           label="Prayer Table"
           labelStyle={styles.drawerLblStyle}
-          onPress={() => props.navigation.navigate('PrayerTableScreen')}
+          onPress={() => props.navigation.navigate('PrayerScreen')}
         />
         <View style={styles.line} />
         <DrawerItem
